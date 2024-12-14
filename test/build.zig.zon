@@ -4,7 +4,7 @@
     .dependencies = .{
         .zgui = .{
             .url = "https://github.com/jan-beukes/zgui/archive/refs/heads/main.zip",
-            .hash = "122021f4dc975e52574bbd5f0b5eeb0e481c572f01767317ba306a6c9729cbcfa7c5",
+            .hash = "122040b4b28084c25bdbc1b372853c1e6f7c26d62e19b166dcd817f643f9b9b70b8e",
         },
         .@"raylib-zig" = .{
             .url = "https://github.com/Not-Nik/raylib-zig/archive/refs/heads/devel.zip",
