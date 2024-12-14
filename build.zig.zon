@@ -1,6 +1,6 @@
 .{
     .name = "zgui",
-    .version = "0.6.0-dev",
+    .version = "0.13.0",
     .paths = .{
         "build.zig",
         "build.zig.zon",
@@ -10,19 +10,13 @@
         "LICENSE",
     },
     .dependencies = .{
+        .@"raylib-zig" = .{
+            .url = "https://github.com/Not-Nik/raylib-zig/archive/refs/heads/devel.tar.gz",
+            .hash = "122058d3ea6318efb819d0bffba630afd1a459fa3a99b4bfe4b680a937d5de04d2fc",
+        },
         .system_sdk = .{
             .url = "https://github.com/zig-gamedev/system_sdk/archive/bf49d627a191e339f70e72668c8333717fb969b0.tar.gz",
             .hash = "122047a9298c4c9dd43389d418d6826d469b192246ba0944102964cdc57f94c562df",
-            .lazy = true,
-        },
-        .zglfw = .{
-            .url = "https://github.com/zig-gamedev/zglfw/archive/d18b30438d630d44e50aa30e2300a96c4f4ff67d.tar.gz",
-            .hash = "1220074231fcf6556b27e0ac6a3b22a19062c0c4bc3fd77c6fdcede15303af824c27",
-            .lazy = true,
-        },
-        .zgpu = .{
-            .url = "https://github.com/zig-gamedev/zgpu/archive/44061500651ea5ef6d708527fe322e2e69e2e631.tar.gz",
-            .hash = "1220af0752814ec0a3438aa3ca3e33661885ec134c5e7b794247381b0fbe90c21012",
             .lazy = true,
         },
         .freetype = .{

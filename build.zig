@@ -1,26 +1,39 @@
 const std = @import("std");
 
-pub const Backend = enum {
-    no_backend,
-    glfw_wgpu,
-    glfw_opengl3,
-    glfw_dx12,
-    win32_dx12,
-    glfw,
-    raylib,
-};
+fn buildExamples(b: *std.Build, zgui: *std.Build.Module, raylib_zig: *std.Build.Dependency, imgui: *std.Build.Step.Compile) void {
+    const target = imgui.root_module.resolved_target orelse b.resolveTargetQuery(b.host.query);
+    const optimize = imgui.root_module.optimize orelse std.builtin.OptimizeMode.Debug;
+
+    const simple = b.addExecutable(.{
+        .name = "simple",
+        .root_source_file = b.path("examples/simple.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    simple.root_module.addImport("zgui", zgui);
+    simple.root_module.addImport("raylib", raylib_zig.module("raylib"));
+    simple.linkLibrary(imgui);
+    simple.linkLibrary(raylib_zig.artifact("raylib"));
+    b.installArtifact(simple);
+
+    const editor = b.addExecutable(.{
+        .name = "editor",
+        .root_source_file = b.path("examples/editor.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    editor.root_module.addImport("zgui", zgui);
+    editor.root_module.addImport("raylib", raylib_zig.module("raylib"));
+    editor.linkLibrary(imgui);
+    editor.linkLibrary(raylib_zig.artifact("raylib"));
+    b.installArtifact(editor);
+}
 
 pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
     const target = b.standardTargetOptions(.{});
 
     const options = .{
-        .backend = b.option(Backend, "backend", "Backend to build (default: no_backend)") orelse .no_backend,
-        .shared = b.option(
-            bool,
-            "shared",
-            "Bulid as a shared library",
-        ) orelse false,
         .with_implot = b.option(
             bool,
             "with_implot",
@@ -65,7 +78,7 @@ pub fn build(b: *std.Build) void {
 
     const options_module = options_step.createModule();
 
-    _ = b.addModule("root", .{
+    const zgui = b.addModule("root", .{
         .root_source_file = b.path("src/gui.zig"),
         .imports = &.{
             .{ .name = "zgui_options", .module = options_module },
@@ -79,25 +92,7 @@ pub fn build(b: *std.Build) void {
         if (options.use_32bit_draw_idx) "-DIMGUI_USE_32BIT_DRAW_INDEX" else "",
     };
 
-    const imgui = if (options.shared) blk: {
-        const lib = b.addSharedLibrary(.{
-            .name = "imgui",
-            .target = target,
-            .optimize = optimize,
-        });
-
-        if (target.result.os.tag == .windows) {
-            lib.defineCMacro("IMGUI_API", "__declspec(dllexport)");
-            lib.defineCMacro("IMPLOT_API", "__declspec(dllexport)");
-            lib.defineCMacro("ZGUI_API", "__declspec(dllexport)");
-        }
-
-        if (target.result.os.tag == .macos) {
-            lib.linker_allow_shlib_undefined = true;
-        }
-
-        break :blk lib;
-    } else b.addStaticLibrary(.{
+    const imgui = b.addStaticLibrary(.{
         .name = "imgui",
         .target = target,
         .optimize = optimize,
@@ -107,6 +102,15 @@ pub fn build(b: *std.Build) void {
 
     imgui.addIncludePath(b.path("libs"));
     imgui.addIncludePath(b.path("libs/imgui"));
+
+    // rlImGui
+    const raylib_zig = b.dependency("raylib-zig", .{ .target = target, .optimize = optimize });
+    zgui.addImport("raylib", raylib_zig.module("raylib"));
+    imgui.addIncludePath(b.path("libs/rlImGui"));
+    imgui.addCSourceFile(.{
+        .file = b.path("libs/rlImGui/rlImGui.cpp"),
+        .flags = cflags,
+    });
 
     imgui.linkLibC();
     if (target.result.abi != .msvc)
@@ -253,84 +257,6 @@ pub fn build(b: *std.Build) void {
         }
     }
 
-    switch (options.backend) {
-        .glfw_wgpu => {
-            if (b.lazyDependency("zglfw", .{})) |zglfw| {
-                imgui.addIncludePath(zglfw.path("libs/glfw/include"));
-            }
-            if (b.lazyDependency("zgpu", .{})) |zgpu| {
-                imgui.addIncludePath(zgpu.path("libs/dawn/include"));
-            }
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_glfw.cpp",
-                    "libs/imgui/backends/imgui_impl_wgpu.cpp",
-                },
-                .flags = cflags,
-            });
-        },
-        .glfw_opengl3 => {
-            if (b.lazyDependency("zglfw", .{})) |zglfw| {
-                imgui.addIncludePath(zglfw.path("libs/glfw/include"));
-            }
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_glfw.cpp",
-                    "libs/imgui/backends/imgui_impl_opengl3.cpp",
-                },
-                .flags = &(cflags.* ++ .{"-DIMGUI_IMPL_OPENGL_LOADER_CUSTOM"}),
-            });
-        },
-        .glfw_dx12 => {
-            if (b.lazyDependency("zglfw", .{})) |zglfw| {
-                imgui.addIncludePath(zglfw.path("libs/glfw/include"));
-            }
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_glfw.cpp",
-                    "libs/imgui/backends/imgui_impl_dx12.cpp",
-                },
-                .flags = cflags,
-            });
-            imgui.linkSystemLibrary("d3dcompiler_47");
-        },
-        .win32_dx12 => {
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_win32.cpp",
-                    "libs/imgui/backends/imgui_impl_dx12.cpp",
-                },
-                .flags = cflags,
-            });
-            imgui.linkSystemLibrary("d3dcompiler_47");
-            imgui.linkSystemLibrary("dwmapi");
-            switch (target.result.abi) {
-                .msvc => imgui.linkSystemLibrary("Gdi32"),
-                .gnu => imgui.linkSystemLibrary("gdi32"),
-                else => {},
-            }
-        },
-        .glfw => {
-            if (b.lazyDependency("zglfw", .{})) |zglfw| {
-                imgui.addIncludePath(zglfw.path("libs/glfw/include"));
-            }
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_glfw.cpp",
-                },
-                .flags = cflags,
-            });
-        },
-        .raylib => {
-            imgui.addIncludePath(b.path("libs/rlImGui"));
-            imgui.addCSourceFile(.{
-                .file = b.path("libs/rlImGui/rlImGui.cpp"),
-                .flags = cflags,
-            });
-        },
-        .no_backend => {},
-    }
-
     if (target.result.os.tag == .macos) {
         if (b.lazyDependency("system_sdk", .{})) |system_sdk| {
             imgui.addSystemIncludePath(system_sdk.path("macos12/usr/include"));
@@ -338,8 +264,11 @@ pub fn build(b: *std.Build) void {
         }
     }
 
-    const test_step = b.step("test", "Run zgui tests");
+    // Examples
+    buildExamples(b, zgui, raylib_zig, imgui);
 
+    // Tests
+    const test_step = b.step("test", "Run zgui tests");
     const tests = b.addTest(.{
         .name = "zgui-tests",
         .root_source_file = b.path("src/gui.zig"),
@@ -350,6 +279,5 @@ pub fn build(b: *std.Build) void {
 
     tests.root_module.addImport("zgui_options", options_module);
     tests.linkLibrary(imgui);
-
     test_step.dependOn(&b.addRunArtifact(tests).step);
 }

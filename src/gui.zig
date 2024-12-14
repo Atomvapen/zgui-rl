@@ -8,16 +8,7 @@ pub const plot = @import("plot.zig");
 pub const gizmo = @import("gizmo.zig");
 pub const node_editor = @import("node_editor.zig");
 pub const te = @import("te.zig");
-
-pub const backend = switch (@import("zgui_options").backend) {
-    .glfw_wgpu => @import("backend_glfw_wgpu.zig"),
-    .glfw_opengl3 => @import("backend_glfw_opengl.zig"),
-    .glfw_dx12 => @import("backend_glfw_dx12.zig"),
-    .glfw => @import("backend_glfw.zig"),
-    .win32_dx12 => @import("backend_win32_dx12.zig"),
-    .raylib => @import("backend_rlimgui.zig"),
-    .no_backend => .{},
-};
+pub const rlimgui = @import("rlimgui.zig");
 
 const te_enabled = @import("zgui_options").with_te;
 //--------------------------------------------------------------------------------------------------
@@ -1765,11 +1756,11 @@ pub fn comboFromEnum(
     const EnumType = @TypeOf(current_item.*);
     const enum_type_info = getTypeInfo: {
         switch (@typeInfo(EnumType)) {
-            .optional => |optional_type_info| switch (@typeInfo(optional_type_info.child)) {
-                .@"enum" => |enum_type_info| break :getTypeInfo enum_type_info,
+            .Optional => |optional_type_info| switch (@typeInfo(optional_type_info.child)) {
+                .Enum => |enum_type_info| break :getTypeInfo enum_type_info,
                 else => {},
             },
-            .@"enum" => |enum_type_info| break :getTypeInfo enum_type_info,
+            .Enum => |enum_type_info| break :getTypeInfo enum_type_info,
             else => {},
         }
         @compileError("Error: current_item must be a pointer-to-an-enum, not a " ++ @TypeOf(EnumType));
@@ -1793,8 +1784,8 @@ pub fn comboFromEnum(
 
     var item: i32 =
         switch (@typeInfo(EnumType)) {
-        .optional => if (current_item.*) |tag| field_name_to_index.get(@tagName(tag)) orelse -1 else -1,
-        .@"enum" => field_name_to_index.get(@tagName(current_item.*)) orelse -1,
+        .Optional => if (current_item.*) |tag| field_name_to_index.get(@tagName(tag)) orelse -1 else -1,
+        .Enum => field_name_to_index.get(@tagName(current_item.*)) orelse -1,
         else => unreachable,
     };
 
