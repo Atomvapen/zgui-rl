@@ -1,24 +1,33 @@
 const std = @import("std");
+const rl = @import("raylib");
+const zgui = @import("zgui");
+const rlimgui = zgui.backend;
 
-pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("All your {s} are belong to us.\n", .{"codebase"});
+pub fn main() void {
+    const screen_width = 1280;
+    const screen_height = 800;
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
-    const stdout = bw.writer();
+    rl.setConfigFlags(.{
+        .msaa_4x_hint = true,
+        .vsync_hint = true,
+        .window_resizable = true,
+    });
+    rl.initWindow(screen_width, screen_height, "simple ImGui Demo");
+    rl.setTargetFPS(144);
+    rlimgui.setup(true);
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    while (!rl.windowShouldClose()) {
+        rl.beginDrawing();
+        rl.clearBackground(rl.Color.dark_gray);
 
-    try bw.flush(); // don't forget to flush!
-}
+        // start ImGui content
+        rlimgui.begin();
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+        var open = true;
+        zgui.showDemoWindow(&open);
+
+        rlimgui.end();
+
+        rl.endDrawing();
+    }
 }

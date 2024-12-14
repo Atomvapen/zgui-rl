@@ -1,7 +1,16 @@
 .{
     .name = "test",
     .version = "0.0.0",
-    .dependencies = .{},
+    .dependencies = .{
+        .zgui = .{
+            .url = "https://github.com/jan-beukes/zgui/archive/refs/heads/main.zip",
+            .hash = "122021f4dc975e52574bbd5f0b5eeb0e481c572f01767317ba306a6c9729cbcfa7c5",
+        },
+        .@"raylib-zig" = .{
+            .url = "https://github.com/Not-Nik/raylib-zig/archive/refs/heads/devel.zip",
+            .hash = "122058d3ea6318efb819d0bffba630afd1a459fa3a99b4bfe4b680a937d5de04d2fc",
+        },
+    },
 
     .paths = .{
         "build.zig",
