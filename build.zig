@@ -7,6 +7,7 @@ pub const Backend = enum {
     glfw_dx12,
     win32_dx12,
     glfw,
+    raylib,
 };
 
 pub fn build(b: *std.Build) void {
@@ -317,6 +318,13 @@ pub fn build(b: *std.Build) void {
                 .files = &.{
                     "libs/imgui/backends/imgui_impl_glfw.cpp",
                 },
+                .flags = cflags,
+            });
+        },
+        .raylib => {
+            imgui.addIncludePath(b.path("libs/rlImGui"));
+            imgui.addCSourceFile(.{
+                .file = b.path("libs/rlImGui/rlImGui.cpp"),
                 .flags = cflags,
             });
         },

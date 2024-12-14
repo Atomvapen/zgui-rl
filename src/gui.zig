@@ -15,8 +15,10 @@ pub const backend = switch (@import("zgui_options").backend) {
     .glfw_dx12 => @import("backend_glfw_dx12.zig"),
     .glfw => @import("backend_glfw.zig"),
     .win32_dx12 => @import("backend_win32_dx12.zig"),
+    .raylib => @import("rlimgui.zig"),
     .no_backend => .{},
 };
+
 const te_enabled = @import("zgui_options").with_te;
 //--------------------------------------------------------------------------------------------------
 const std = @import("std");
