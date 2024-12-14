@@ -89,12 +89,12 @@ void ReloadFonts(void)
     io.Fonts->TexID = (ImTextureID)fontTexture;
 }
 
-static const char* GetClipTextCallback(ImGuiContext*)
+static const char* GetClipTextCallback(void *userData)
 {
     return GetClipboardText();
 }
 
-static void SetClipTextCallback(ImGuiContext*, const char* text)
+static void SetClipTextCallback(void *userData, const char *text)
 {
     SetClipboardText(text);
 }
@@ -266,12 +266,12 @@ void SetupBackend(void)
 
     io.MousePos = ImVec2(0, 0);
 
-    ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
+    ImGuiIO& platformIO = ImGui::GetIO();
 
-    platformIO.Platform_SetClipboardTextFn = SetClipTextCallback;
-    platformIO.Platform_GetClipboardTextFn = GetClipTextCallback;
+    platformIO.SetClipboardTextFn = SetClipTextCallback;
+    platformIO.GetClipboardTextFn = GetClipTextCallback;
 
-    platformIO.Platform_ClipboardUserData = nullptr;
+    platformIO.ClipboardUserData = nullptr;
 }
 
 void rlImGuiEndInitImGui(void)
