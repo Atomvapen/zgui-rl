@@ -3,7 +3,7 @@
 
 ## Getting started
 
-`zig fetch --save https://github.com/jan-beukes/zgui-rl/archive/refs/heads/main.tar.gz`
+`zig fetch --save https://github.com/Atomvapen/zgui-rl/archive/refs/heads/main.tar.gz`
 
 ### Example:
 `build.zig`:
