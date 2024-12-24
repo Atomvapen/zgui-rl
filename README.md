@@ -3,7 +3,7 @@
 
 ## Fork changes
 
-* Updated comboFromEnum to the lastest Zig version
+* Updated `comboFromEnum` to the lastest Zig version
 
 ## Getting started
 
