@@ -1756,11 +1756,11 @@ pub fn comboFromEnum(
     const EnumType = @TypeOf(current_item.*);
     const enum_type_info = getTypeInfo: {
         switch (@typeInfo(EnumType)) {
-            .Optional => |optional_type_info| switch (@typeInfo(optional_type_info.child)) {
-                .Enum => |enum_type_info| break :getTypeInfo enum_type_info,
+            .optional => |optional_type_info| switch (@typeInfo(optional_type_info.child)) {
+                .@"enum" => |enum_type_info| break :getTypeInfo enum_type_info,
                 else => {},
             },
-            .Enum => |enum_type_info| break :getTypeInfo enum_type_info,
+            .@"enum" => |enum_type_info| break :getTypeInfo enum_type_info,
             else => {},
         }
         @compileError("Error: current_item must be a pointer-to-an-enum, not a " ++ @TypeOf(EnumType));
@@ -1784,8 +1784,8 @@ pub fn comboFromEnum(
 
     var item: i32 =
         switch (@typeInfo(EnumType)) {
-        .Optional => if (current_item.*) |tag| field_name_to_index.get(@tagName(tag)) orelse -1 else -1,
-        .Enum => field_name_to_index.get(@tagName(current_item.*)) orelse -1,
+        .optional => if (current_item.*) |tag| field_name_to_index.get(@tagName(tag)) orelse -1 else -1,
+        .@"enum" => field_name_to_index.get(@tagName(current_item.*)) orelse -1,
         else => unreachable,
     };
 
