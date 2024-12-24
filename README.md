@@ -1,6 +1,10 @@
 # rlImGui bindings for zig
 [rlImGui](https://github.com/raylib-extras/rlImGui) backend for the [zgui](https://github.com/zig-gamedev/zgui) Dear ImGui bindings
 
+## Fork changes
+
+* Updated comboFromEnum to the lastest Zig version
+
 ## Getting started
 
 `zig fetch --save https://github.com/Atomvapen/zgui-rl/archive/refs/heads/main.tar.gz`
