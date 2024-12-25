@@ -10,6 +10,14 @@ pub const node_editor = @import("node_editor.zig");
 pub const te = @import("te.zig");
 pub const rlimgui = @import("rlimgui.zig");
 
+pub const backend = switch (@import("zgui_options").backend) {
+    .glfw_wgpu => @import("backend_glfw_wgpu.zig"),
+    .glfw_opengl3 => @import("backend_glfw_opengl.zig"),
+    .glfw_dx12 => @import("backend_glfw_dx12.zig"),
+    .glfw => @import("backend_glfw.zig"),
+    .win32_dx12 => @import("backend_win32_dx12.zig"),
+    .no_backend => .{},
+};
 const te_enabled = @import("zgui_options").with_te;
 //--------------------------------------------------------------------------------------------------
 const std = @import("std");
@@ -3435,12 +3443,12 @@ var temp_buffer: ?std.ArrayList(u8) = null;
 
 pub fn format(comptime fmt: []const u8, args: anytype) []const u8 {
     const len = std.fmt.count(fmt, args);
-    if (len > temp_buffer.?.items.len) temp_buffer.?.resize(len + 64) catch unreachable;
+    if (len > temp_buffer.?.items.len) temp_buffer.?.resize(@intCast(len + 64)) catch unreachable;
     return std.fmt.bufPrint(temp_buffer.?.items, fmt, args) catch unreachable;
 }
 pub fn formatZ(comptime fmt: []const u8, args: anytype) [:0]const u8 {
     const len = std.fmt.count(fmt ++ "\x00", args);
-    if (len > temp_buffer.?.items.len) temp_buffer.?.resize(len + 64) catch unreachable;
+    if (len > temp_buffer.?.items.len) temp_buffer.?.resize(@intCast(len + 64)) catch unreachable;
     return std.fmt.bufPrintZ(temp_buffer.?.items, fmt, args) catch unreachable;
 }
 //--------------------------------------------------------------------------------------------------
