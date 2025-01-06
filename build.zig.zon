@@ -11,8 +11,8 @@
     },
     .dependencies = .{
         .@"raylib-zig" = .{
-            .url = "git+https://github.com/Not-Nik/raylib-zig?ref=devel#845af357e4bc5ed8d008a8bb64bd7c4b4906851d",
-            .hash = "122081321a9b6653f90fee325553c9f64934f94b789e7ddbadf27f754a5e42537c4d",
+            .url = "git+https://github.com/Not-Nik/raylib-zig?ref=5.6-dev#15ec5b0d15e216d2140a034a96beab30553490cf",
+            .hash = "1220cf1c265c5463cab183d49ba997c66e543ff0fb604965b5c73ae6cffc64127402",
         },
         .system_sdk = .{
             .url = "https://github.com/zig-gamedev/system_sdk/archive/bf49d627a191e339f70e72668c8333717fb969b0.tar.gz",
