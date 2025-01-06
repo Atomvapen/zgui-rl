@@ -20,8 +20,8 @@ const ImageViewerWindow = struct {
 
     image_texture: rl.Texture,
     camera: rl.Camera2D = std.mem.zeroes(rl.Camera2D),
-    last_mouse_pos: rl.Vector2 = rl.Vector2.zero(),
-    last_target: rl.Vector2 = rl.Vector2.zero(),
+    last_mouse_pos: rl.Vector2 = undefined,
+    last_target: rl.Vector2 = undefined,
     dragging: bool = false,
     dirty_scene: bool = false,
 
@@ -126,7 +126,7 @@ const ImageViewerWindow = struct {
         if (self.focused) {
             if (self.current_tool_mode == .move) {
                 // only when in content area
-                if (rl.isMouseButtonDown(.mouse_button_left) and rl.checkCollisionPointRec(mouse_pos, self.content_rect)) {
+                if (rl.isMouseButtonDown(.left) and rl.checkCollisionPointRec(mouse_pos, self.content_rect)) {
                     if (!self.dragging) {
                         self.last_mouse_pos = mouse_pos;
                         self.last_target = self.camera.target;
@@ -194,8 +194,8 @@ const SceneViewWindow = struct {
         var grid_texture = rl.loadTextureFromImage(img);
         img.unload();
         rl.genTextureMipmaps(&grid_texture);
-        rl.setTextureFilter(grid_texture, .texture_filter_anisotropic_16x);
-        rl.setTextureWrap(grid_texture, .texture_wrap_clamp);
+        rl.setTextureFilter(grid_texture, .anisotropic_16x);
+        rl.setTextureWrap(grid_texture, .clamp);
     }
 
     fn shutdown(self: *Self) void {
