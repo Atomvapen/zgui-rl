@@ -103,14 +103,6 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
         });
 
-        const raylib_zig = b.dependency("raylib-zig", .{ .target = target, .optimize = optimize });
-        zgui.addImport("raylib", raylib_zig.module("raylib"));
-        lib.addIncludePath(b.path("libs/rlImGui"));
-        lib.addCSourceFile(.{
-            .file = b.path("libs/rlImGui/rlImGui.cpp"),
-            .flags = cflags,
-        });
-
         if (target.result.os.tag == .windows) {
             lib.root_module.addCMacro("IMGUI_API", "__declspec(dllexport)");
             lib.root_module.addCMacro("IMPLOT_API", "__declspec(dllexport)");
@@ -152,6 +144,14 @@ pub fn build(b: *std.Build) void {
             "libs/imgui/imgui_draw.cpp",
             "libs/imgui/imgui_demo.cpp",
         },
+        .flags = cflags,
+    });
+
+    const raylib_zig = b.dependency("raylib_zig", .{ .target = target, .optimize = optimize });
+    zgui.addImport("raylib", raylib_zig.module("raylib"));
+    imgui.addIncludePath(b.path("libs/rlImGui"));
+    imgui.addCSourceFile(.{
+        .file = b.path("libs/rlImGui/rlImGui.cpp"),
         .flags = cflags,
     });
 
