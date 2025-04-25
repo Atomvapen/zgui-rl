@@ -34,6 +34,11 @@ extern "C"
         ImGui::SetAllocatorFunctions(alloc_func, free_func, nullptr);
     }
 
+    ZGUI_API void zguiSetNextWindowViewport(ImGuiID viewport_id)
+    {
+        ImGui::SetNextWindowViewport(viewport_id);
+    }
+
     ZGUI_API void zguiSetNextWindowPos(float x, float y, ImGuiCond cond, float pivot_x, float pivot_y)
     {
         ImGui::SetNextWindowPos({x, y}, cond, {pivot_x, pivot_y});
@@ -1988,6 +1993,18 @@ extern "C"
     {
         return ImGui::IsKeyDown(key);
     }
+    ZGUI_API bool zguiIsKeyPressed(ImGuiKey key, bool repeat)
+    {
+        return ImGui::IsKeyPressed(key, repeat);
+    }
+    ZGUI_API bool zguiIsKeyReleased(ImGuiKey key)
+    {
+        return ImGui::IsKeyReleased(key);
+    }
+    ZGUI_API void zguiSetNextFrameWantCaptureKeyboard(bool want_capture_keyboard) 
+    {
+        ImGui::SetNextFrameWantCaptureKeyboard(want_capture_keyboard);
+    }
     //--------------------------------------------------------------------------------------------------
     //
     // DrawList
@@ -2235,6 +2252,29 @@ extern "C"
         draw_list->AddCircleFilled({center[0], center[1]}, radius, col, num_segments);
     }
 
+    ZGUI_API void zguiDrawList_AddEllipse(
+        ImDrawList *draw_list,
+        const float center[2],
+        const float radius[2],
+        ImU32 col,
+		float rot,
+        int num_segments,
+        float thickness)
+    {
+        draw_list->AddEllipse({center[0], center[1]}, {radius[0], radius[1]}, col, rot, num_segments, thickness);
+    }
+
+    ZGUI_API void zguiDrawList_AddEllipseFilled(
+        ImDrawList *draw_list,
+        const float center[2],
+        const float radius[2],
+        ImU32 col,
+		float rot,
+        int num_segments)
+    {
+        draw_list->AddEllipseFilled({center[0], center[1]}, {radius[0], radius[1]}, col, rot, num_segments);
+    }
+
     ZGUI_API void zguiDrawList_AddNgon(
         ImDrawList *draw_list,
         const float center[2],
@@ -2284,6 +2324,15 @@ extern "C"
         ImU32 col)
     {
         draw_list->AddConvexPolyFilled((const ImVec2 *)&points[0][0], num_points, col);
+    }
+
+    ZGUI_API void zguiDrawList_AddConcavePolyFilled(
+        ImDrawList *draw_list,
+        const float points[][2],
+        int num_points,
+        ImU32 col)
+    {
+        draw_list->AddConcavePolyFilled((const ImVec2 *)&points[0][0], num_points, col);
     }
 
     ZGUI_API void zguiDrawList_AddBezierCubic(
@@ -2399,6 +2448,11 @@ extern "C"
         draw_list->PathFillConvex(col);
     }
 
+    ZGUI_API void zguiDrawList_PathFillConcave(ImDrawList *draw_list, ImU32 col)
+    {
+        draw_list->PathFillConcave(col);
+    }
+
     ZGUI_API void zguiDrawList_PathStroke(ImDrawList *draw_list, ImU32 col, ImDrawFlags flags, float thickness)
     {
         draw_list->PathStroke(col, flags, thickness);
@@ -2423,6 +2477,18 @@ extern "C"
         int a_max_of_12)
     {
         draw_list->PathArcToFast({center[0], center[1]}, radius, a_min_of_12, a_max_of_12);
+    }
+
+    ZGUI_API void zguiDrawList_PathEllipticalArcTo(
+        ImDrawList *draw_list,
+        const float center[2],
+        const float radius[2],
+		float rot,
+        int a_min,
+        int a_max,
+        int num_segments)
+    {
+        draw_list->PathEllipticalArcTo({center[0], center[1]}, {radius[0], radius[1]}, rot, a_min, a_max, num_segments);
     }
 
     ZGUI_API void zguiDrawList_PathBezierCubicCurveTo(
@@ -2535,6 +2601,11 @@ extern "C"
         return ImGui::GetMainViewport();
     }
 
+    ZGUI_API ImGuiID zguiViewport_GetId(ImGuiViewport *viewport)
+    {
+        return viewport->ID;
+    }
+
     ZGUI_API void zguiViewport_GetPos(ImGuiViewport *viewport, float p[2])
     {
         const ImVec2 pos = viewport->Pos;
@@ -2561,6 +2632,14 @@ extern "C"
         const ImVec2 sz = viewport->WorkSize;
         p[0] = sz.x;
         p[1] = sz.y;
+    }
+
+    ZGUI_API void zguiUpdatePlatformWindows() {
+        ImGui::UpdatePlatformWindows();
+    }
+
+    ZGUI_API void zguiRenderPlatformWindowsDefault() {
+        ImGui::RenderPlatformWindowsDefault();
     }
 
     //--------------------------------------------------------------------------------------------------
